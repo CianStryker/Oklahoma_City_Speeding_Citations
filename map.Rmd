@@ -1,0 +1,90 @@
+---
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+#I thought it would be good to keep relevant packages just in case
+
+library(sf)
+library(gganimate)
+library(readr)
+library(transformr)
+library(ggspatial)
+library(fs)
+library(tidyverse)
+library(lubridate)
+```
+
+```{r, Starting to Map}
+
+#Just loading in my data to start
+
+x3 <- read_rds("clean-data/x2")
+
+#So this data is kinda boring? I wasn't sure what to show, so I decided to just show where the bulk of high level speeding was happening over the years. So I filter for citations, mutate for year, and then filter for just 15-19 and over 25 citations. I mutate for year because I wanted to show data per year as opposed to per day. 
+
+citations <- x3 %>%
+  filter(citation_issued == "TRUE")%>%
+  mutate(year = year(date)) %>%
+  filter(violation %in% c("SPEEDING 15-19 MPH OVER SPEED LIMIT","SPEEDING MORE THAN 25 MPH OVER SPEED LIM"))
+```
+
+```{r, Details for Map}
+
+#I'm just reading in my shape file here
+
+y <- read_rds("clean-data/y") 
+
+#Here's my cool code that adds a crs to my datafile
+
+locations <- st_as_sf(citations, coords = c("lng", "lat"), crs = 4326) %>%
+  select("year", "geometry")
+```
+
+```{r, Mapping}
+
+#Now I'ts mapping time. I add in my data and then use transition_states to animate. I prefer transition_states over transition_time because I can manually change the transition rates to make it better. Then I add in labels, remove some unnecessary axis info, and then I add some color to spice things up. Oh and check out this cool compass I added? Pretty cool right? 
+
+map <- ggplot() +
+  geom_sf(data = y, fill = "antiquewhite") +
+  geom_sf(data = locations, color = "red", show.legend = TRUE)+
+  transition_states(locations$year, transition_length = 1, state_length = 20, wrap = TRUE) +
+  labs(
+    title = "High Speed Citations in Oklahoma City: {closest_state}",
+    subtitle = "Santa Fe and Springlake Police Divisions",
+    caption = "Source: Stanford Open Policing Project"
+  ) +
+  ease_aes("sine-in-out") +
+  theme(axis.text.x=element_blank(), axis.text.y = element_blank()) +
+  theme(panel.background = element_rect(fill = "aliceblue")) +
+  annotation_north_arrow(location = "tr", which_north = "true", 
+        pad_x = unit(0.1, "in"), pad_y = unit(0.1, "in"),
+        style = north_arrow_fancy_orienteering) 
+
+#Time to print to publish
+
+map
+```
+
+```{r, Animate and Save}
+
+#You have to animate it to make it into an .rds file later and knit
+
+animated_map <- animate(map, fps = 10)
+
+#Now I just save my graph as an rds file in my graphics directory
+
+write_rds(animated_map, path = "graphics/map.rds")
+
+#Here I'm 
+   
+anim_save("graphics/outfile.gif", animated_map)
+
+# Then I copy over my map from graphics to my shiny directory
+
+file_copy("graphics/outfile.gif", new_path = "Shiny/map.gif")
+```
+
+
