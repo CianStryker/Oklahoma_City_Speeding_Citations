@@ -32,15 +32,13 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                         
                         title = "Project", 
                         
+                        
                         fluidRow(
-                            
+                          
                             column(width = 4),
                             
                             column(width = 4,
-                                   
-                                   tags$h1("Map"), 
-                                   
-                                   tags$br(),
+                                  
                                    
                                    plotOutput(outputId = "map3"), 
                                    
@@ -48,6 +46,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                    
                             ),
                                    
+
                             column(width = 4)
                             
                             ),
@@ -64,7 +63,7 @@ ui <- fluidPage(theme = shinytheme("superhero"),
                                    
                                    tags$h1("Data"), 
                                    
-                                   tags$p("The data for this map is from the Stanford Open Policing Project. The map itself shows every citation given to Oklahoma Drivers by police divisions of Santa Fe and Springlake. The only citations included were 'high-speed' violations or any citations for speeding above 15 mph between 2011 and 2016. "), 
+                                   tags$p("The data for this map is from the Stanford Open Policing Project. The map itself shows every citation given to Oklahoma Drivers by police divisions of Santa Fe and Springlake. The only citations included were 'high-speed' violations or any citations for speeding above 15 mph between 2011 and 2016. The code and data for this project can be viewed at this", a(href = 'https://github.com/CianStryker/Oklahoma_City_Speeding_Citations', 'Gitbub repo')),
                                    
                                    tags$h1("About me"), 
                                    
